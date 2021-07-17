@@ -2,8 +2,6 @@
     Class to make interfacing with a midi keyboard easier.
 """
 
-from typing import Callable
-
 import mido
 import time
 
@@ -11,7 +9,7 @@ from MidiEvent import event_from_message
 
 
 class MidiInterface:
-    def __init__(self, partial_name: str, empty_q: bool = True):
+    def __init__(self, partial_name, empty_q=True):
         # find ports with partial name
         inport_name, outport_name = None, None
         for port_name in mido.get_input_names():
@@ -30,10 +28,10 @@ class MidiInterface:
 
         # remove events in input queue (from prior usage)
         if empty_q:
-            while self._inport.receive(0) is not None:
-                pass
+            self.register_callback(lambda m: None)
+            time.sleep(1)
 
-    def register_callback(self, callback: Callable) -> None:
+    def register_callback(self, callback):
         self._inport.callback = callback
 
 

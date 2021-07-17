@@ -3,15 +3,14 @@
 """
 
 from collections import defaultdict
-import mido
 
-from Note import Note
+from BasicNote import BasicNote
 
 
 class AbstractMidiEvent:
     """ Base class for Midi Events """
 
-    def __init__(self, raw_event: mido.Message):
+    def __init__(self, raw_event):
         self._raw_event = raw_event
 
     def __repr__(self) -> str:
@@ -27,7 +26,7 @@ class AbstractMidiEvent:
 
 
 class NoteEvent(AbstractMidiEvent):
-    def __init__(self, raw_event: mido.Message):
+    def __init__(self, raw_event):
         super().__init__(raw_event)
 
         self._is_on = True
@@ -38,24 +37,24 @@ class NoteEvent(AbstractMidiEvent):
         else:
             raise ValueError('NoteEvent cannot be created from non-note message')
 
-        self._note = Note(raw_event.note)
+        self._note = BasicNote(raw_event.note)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         type_str = "NoteOn" if self._is_on else "NoteOff"
         return f'NoteEvent({type_str}, {self._note}, {self.velocity})'
 
     @property
-    def note(self) -> Note:
+    def note(self):
         """ Returns note this event refers to """
         return self._note
 
     @property
-    def velocity(self) -> float:
+    def velocity(self):
         """ Returns velocity of played note """
         return self._raw_event.velocity
 
     @property
-    def is_note_on(self) -> bool:
+    def is_note_on(self):
         """ Returns NOTE_ON or NOTE_OFF """
         return self._is_on
 
@@ -68,31 +67,32 @@ control_names[88] = 'HIGHRES_VELOCITY'
 
 
 class ControllerEvent(AbstractMidiEvent):
-    def __init__(self, raw_event: mido.Message):
+    def __init__(self, raw_event):
         super().__init__(raw_event)
 
         if not raw_event.is_cc():
             raise ValueError('ControllerEvent cannot be created from non-controller message')
 
-    def __repr__(self) -> str:
-        return f'ControllerEvent("{self.name}", value: {self.value})'
+    def __repr__(self):
+        return f'ControllerEvent("{self.name}({self.control})", value: {self.value})'
 
     @property
-    def control(self) -> int:
+    def control(self):
+        """ Returns control number of this event """
         return self._raw_event.control
 
     @property
-    def value(self) -> int:
+    def value(self):
         """ Returns value of this event """
         return self._raw_event.value
 
     @property
-    def name(self) -> str:
+    def name(self):
         """ Returns midi event name """
         return control_names[self.control]
 
 
-def event_from_message(midi_msg: mido.Message) -> AbstractMidiEvent:
+def event_from_message(midi_msg):
     """ Create a subclass of abstract event from a midi message """
 
     if midi_msg.type == 'note_on' or midi_msg.type == 'note_off':

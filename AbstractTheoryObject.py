@@ -2,13 +2,7 @@
 
 """
 
-from __future__ import annotations
-from typing import Tuple
-
 import enum
-
-from MusicDisplay import MusicDisplay
-from MidiEvent import AbstractMidiEvent
 
 
 class UpdateStatus(enum.IntEnum):
@@ -18,18 +12,15 @@ class UpdateStatus(enum.IntEnum):
 
 
 class AbstractTheoryObject:
-    def __init__(self):
-        pass
-
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         raise NotImplementedError()
 
     @staticmethod
-    def random() -> AbstractTheoryObject:
+    def random():
         raise NotImplementedError()
 
-    def update(self, event: AbstractMidiEvent) -> UpdateStatus:
+    def update(self, event):
         raise NotADirectoryError()
 
-    def draw(self, display: MusicDisplay, position: Tuple[int, int]) -> None:
-        pass
+    def draw(self, display, position) -> None:
+        raise NotImplementedError()
