@@ -22,5 +22,8 @@ class AbstractTheoryObject:
     def update(self, event):
         raise NotADirectoryError()
 
-    def draw(self, display, position) -> None:
+    def draw_name(self, display, position):
+        raise NotImplementedError()
+
+    def draw_notation(self, display, position):
         raise NotImplementedError()

@@ -27,17 +27,24 @@ class Note(AbstractTheoryObject):
             raise TypeError('Note can only be constructed from BasicNote and int')
         self._set_key_name()
 
-    def __eq__(self, other: object):
+    def __eq__(self, other):
         if isinstance(other, Note):
             return self._note == other._note
         return False
+
+    def __hash__(self):
+        return hash(self._note)
 
     def _set_key_name(self):
         scale = Note.default_scale
         if Note.random_name:
             # TODO: add more scales (Dbb, C##)
             scale = random.sample([Note.keys_b, Note.keys_sharp], 1)[0]
-        self._key_name = random.sample(scale, 1)[0]
+        self._key_name = scale[self._note.key_offset]
+
+    @property
+    def key_name(self):
+        return self._key_name
 
     @staticmethod
     def random():
@@ -49,21 +56,22 @@ class Note(AbstractTheoryObject):
                 return UpdateStatus.COMPLETED
             return UpdateStatus.WRONG
 
-    def draw(self, display, position) -> None:
+    def draw_name(self, display, position, show_octave):
+        size_name = display.draw_text(self.key_name, position, FontSize.BIG)
+
+        if show_octave:
+            position_octave = (position[0] + int((1 + 0.2 / len(self.key_name)) * size_name[0]), position[1] + size_name[1])
+            size_octave = display.draw_text(str(self._note.octave), position_octave, FontSize.SMALL)
+            return size_name, size_octave
+        return size_name
+
+    def draw_notation(self, display, position):
         # TODO: draw note on musical lines
         pass
 
-    def draw_name(self, display, position, show_octave):
-        size_name = display.draw_text(self._key_name, position, FontSize.BIG)
-
-        if show_octave:
-            position_octave = (position[0] + int((1 + 0.2 / len(self._key_name)) * size_name[0]), position[1] + size_name[1])
-            size_octave = display.draw_text(str(self._note.octave), position_octave, FontSize.SMALL)
-            return (size_name[0] + size_octave[0], size_name[1] + size_octave[1])
-        return size_name
-
 
 if __name__ == '__main__':
+    # TODO: also test draw
     d = MusicDisplay((640, 480), 200, (0, 0, 0))
     d.fill_screen((255, 255, 255))
     n = Note(60)

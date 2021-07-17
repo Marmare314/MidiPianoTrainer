@@ -17,10 +17,13 @@ class BasicNote:
         else:
             raise ValueError('Midi keynumber should be in [0, 127]')
 
-    def __eq__(self, other: object):
+    def __eq__(self, other):
         if isinstance(other, BasicNote):
             return self._key_offset == other._key_offset and self._octave == other._octave
         return False
+
+    def __hash__(self):
+        return self._key_offset + 12 * self._octave
 
     @property
     def octave(self):
