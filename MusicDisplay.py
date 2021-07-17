@@ -9,6 +9,30 @@ import pygame
 import enum
 
 
+class Coord:
+    def __init__(self, width, height):
+        self._width = int(width)
+        self._height = int(height)
+
+    def __add__(self, other):
+        if isinstance(other, Coord):
+            return Coord(self._width + other._width, self._height + other._height)
+
+    def scale_width(self, text, factor):
+        return Coord(self._width * factor / len(text), self._height)
+
+    def scale_height(self, text, factor):
+        return Coord(self._width, self._height * factor / len(text))
+
+    @staticmethod
+    def merge(x, y):
+        return Coord(x._width, y._height)
+
+    @property
+    def tup(self):
+        return (self._width, self._height)
+
+
 class FontSize(enum.IntEnum):
     SMALL = 0
     MEDIUM = 1
@@ -16,7 +40,7 @@ class FontSize(enum.IntEnum):
 
 
 class MusicDisplay:
-    def __init__(self, dimensions: Tuple[int, int], font_size: int, font_color: Tuple[int, int, int]):
+    def __init__(self, dimensions, font_size, font_color):
         pygame.init()
         self._screen = pygame.display.set_mode(dimensions)
 
@@ -25,11 +49,11 @@ class MusicDisplay:
         self.font_size = font_size
 
     @property
-    def font_size(self) -> int:
+    def font_size(self):
         return self._font_size
 
     @font_size.setter
-    def font_size(self, new_size: int) -> None:
+    def font_size(self, new_size):
         self._font_size = new_size
         self._fonts = {
             FontSize.BIG: pygame.font.SysFont('Courier', new_size),
@@ -37,18 +61,18 @@ class MusicDisplay:
             FontSize.SMALL: pygame.font.SysFont('Courier', new_size // 3),
         }
 
-    def draw_text(self, text: str, position: Tuple[int, int], font_size: FontSize) -> Tuple[int, int]:
+    def draw_text(self, text, position, font_size):
         text_surface = self._fonts[font_size].render(text, True, self._font_color)
         text_bounds = text_surface.get_bounding_rect()
 
-        self._screen.blit(text_surface, position)
+        self._screen.blit(text_surface, position.tup)
 
-        return (text_bounds[2], text_bounds[3])
+        return Coord(text_bounds[2], text_bounds[3])
 
-    def fill_screen(self, color: Tuple[int, int, int]) -> None:
+    def fill_screen(self, color):
         self._screen.fill(color)
 
-    def update_screen(self) -> bool:
+    def update_screen(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True

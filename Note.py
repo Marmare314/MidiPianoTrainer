@@ -7,7 +7,7 @@ import random
 from AbstractTheoryObject import AbstractTheoryObject, UpdateStatus
 from MidiEvent import NoteEvent
 from BasicNote import BasicNote
-from MusicDisplay import MusicDisplay, FontSize
+from MusicDisplay import MusicDisplay, FontSize, Coord
 
 
 class Note(AbstractTheoryObject):
@@ -60,7 +60,7 @@ class Note(AbstractTheoryObject):
         size_name = display.draw_text(self.key_name, position, FontSize.BIG)
 
         if show_octave:
-            position_octave = (position[0] + int((1 + 0.2 / len(self.key_name)) * size_name[0]), position[1] + size_name[1])
+            position_octave = size_name.scale_width(self.key_name, 1.2) + position
             size_octave = display.draw_text(str(self._note.octave), position_octave, FontSize.SMALL)
             return size_name, size_octave
         return size_name
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     d = MusicDisplay((640, 480), 200, (0, 0, 0))
     d.fill_screen((255, 255, 255))
     n = Note(60)
-    n.draw_name(d, (0, 0), True)
+    n.draw_name(d, Coord(0, 0), True)
     while True:
         if d.update_screen():
             break

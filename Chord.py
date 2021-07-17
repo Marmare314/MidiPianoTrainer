@@ -6,7 +6,7 @@ import pychord
 import random
 
 from AbstractTheoryObject import AbstractTheoryObject, UpdateStatus
-from MusicDisplay import MusicDisplay, FontSize
+from MusicDisplay import MusicDisplay, FontSize, Coord
 from Note import Note
 
 
@@ -122,8 +122,11 @@ class Chord(AbstractTheoryObject):
         low_text, high_text = split_extensions(group_extensions(self._chord.quality.quality))
         note_size, octave_size = self._base_note.draw_name(display, position, True)
 
-        position_low = (position[0] + (note_size[0] + octave_size[0]) * (1 + 0.3 / len(self._base_note.key_name)), (2 * note_size[1] + position[1]) // 3)
-        position_high = ((note_size[0] * (1 + 0.2 / len(self._base_note.key_name))), position[1])
+        position_low_x = position + (note_size + octave_size).scale_width(self._base_note.key_name, 1.3)
+        position_low_y = position + note_size.scale_height('1', 2/3)
+        position_low = Coord.merge(position_low_x, position_low_y)
+
+        position_high = position + note_size.scale_width(self._base_note.key_name, 1.2).scale_height('1', 0)
 
         display.draw_text(low_text, position_low, FontSize.MEDIUM)
         display.draw_text(high_text, position_high, FontSize.MEDIUM)
@@ -163,7 +166,7 @@ if __name__ == '__main__':
     d = MusicDisplay((640, 480), 200, (0, 0, 0))
     d.fill_screen((255, 255, 255))
     c = Chord.random()
-    c.draw_name(d, (0, 0))
+    c.draw_name(d, Coord(0, 0))
     while True:
         if d.update_screen():
             break
