@@ -23,7 +23,10 @@ class BasicNote:
         return False
 
     def __hash__(self):
-        return self._key_offset + 12 * self._octave
+        return self.midi_num
+
+    def __repr__(self):
+        return f'BasicNote({self.midi_num})'
 
     @property
     def octave(self):
@@ -32,6 +35,10 @@ class BasicNote:
     @property
     def key_offset(self):
         return self._key_offset
+
+    @property
+    def midi_num(self):
+        return self._key_offset + 12 * (self._octave + 2)
 
     @staticmethod
     def random():

@@ -19,7 +19,7 @@ class Coord:
             return Coord(self._width + other._width, self._height + other._height)
 
     def scale_width(self, text, factor):
-        return Coord(self._width * factor / len(text), self._height)
+        return Coord(self._width * (1 + factor / len(text)), self._height)
 
     def scale_height(self, text, factor):
         return Coord(self._width, self._height * factor / len(text))

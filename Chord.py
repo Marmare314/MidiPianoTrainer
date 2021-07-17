@@ -2,12 +2,16 @@
 
 """
 
-import pychord
+from pychord.constants.qualities import DEFAULT_QUALITIES
 import random
 
 from AbstractTheoryObject import AbstractTheoryObject, UpdateStatus
 from MusicDisplay import MusicDisplay, FontSize, Coord
 from Note import Note
+from MidiEvent import NoteEvent
+
+
+quality_pitches = {q: p for q, p in DEFAULT_QUALITIES}
 
 
 def group_extensions(extension):
@@ -82,27 +86,18 @@ class Chord(AbstractTheoryObject):
 
     def __init__(self, base_note, quality):
         self._base_note = base_note
-        self._chord = pychord.Chord(base_note.key_name + quality)
+        self._quality = quality
         self._inversion = randint(0, len(self._chord.components()) - 1) if Chord.respect_inversion else 0
         self._name = self._base_note.random_name
 
-    # def __eq__(self, other):
-    #     if isinstance(other, ActiveKeySet):
-    #         # compare without inversion
-    #         if not Chord.respect_inversion:
-    #             comps = {Note.from_key_name(s+'3').key_offset for s in self._chord.components()}
-    #             return comps == {n.key_offset for n in other}
+        self._played_keys = set()
+        self._set_notes()
 
-    #         # compare with inversion
-    #         chord_notes = self.notes
-    #         for i in range(self._inversion):
-    #             chord_notes[i % len(chord_notes)] += 12
-
-    #         octave_diff = min(chord_notes).octave - 3
-    #         chord_notes = [note - octave_diff * 12 for note in chord_notes]
-
-    #         return set(self.notes) == set(other)
-    #     raise NotImplementedError()
+    def _set_notes(self):
+        # TODO: respect inversion, and shift to around C3
+        self._notes = set()
+        for pitch in quality_pitches[self._quality]:
+            self._notes.add(self._base_note + pitch)
 
     @staticmethod
     def random():
@@ -116,33 +111,37 @@ class Chord(AbstractTheoryObject):
         return Chord.chord_q.pop()
 
     def update(self, event):
-        raise NotADirectoryError()
+        if isinstance(event, NoteEvent):
+            if event.is_note_on:
+                if event.note in self._notes:
+                    self._played_keys.add(event.note)
+                    if self._played_keys == self._notes:
+                        return UpdateStatus.COMPLETED
+                    return UpdateStatus.PARTIAL
+                else:
+                    self._played_keys.add(event.note)
+                    return UpdateStatus.WRONG
+            else:
+                if event.note in self._played_keys:
+                    self._played_keys.remove(event.note)
+                return UpdateStatus.WRONG
+        return UpdateStatus.IGNORED
 
     def draw_name(self, display, position):
-        low_text, high_text = split_extensions(group_extensions(self._chord.quality.quality))
+        low_text, high_text = split_extensions(group_extensions(self._quality))
         note_size, octave_size = self._base_note.draw_name(display, position, True)
 
-        position_low_x = position + (note_size + octave_size).scale_width(self._base_note.key_name, 1.3)
+        position_low_x = position + (note_size + octave_size).scale_width(self._base_note.key_name, 0.3)
         position_low_y = position + note_size.scale_height('1', 2/3)
         position_low = Coord.merge(position_low_x, position_low_y)
 
-        position_high = position + note_size.scale_width(self._base_note.key_name, 1.2).scale_height('1', 0)
+        position_high = position + note_size.scale_width(self._base_note.key_name, 0.2).scale_height('1', 0)
 
         display.draw_text(low_text, position_low, FontSize.MEDIUM)
         display.draw_text(high_text, position_high, FontSize.MEDIUM)
 
     def draw_notation(self, display, position):
         raise NotImplementedError()
-
-    # @property
-    # def notes(self):
-    #     """ Returns a list of note starting in octave 3 """
-    #     chord_notes = [Note.from_key_name(s) for s in self._chord.components_with_pitch(3)]
-    #     for i in range(self._inversion):
-    #         chord_notes[i % len(chord_notes)] += 12
-
-    #     octave_diff = min(chord_notes).octave - 3
-    #     return [note - octave_diff * 12 for note in chord_notes]
 
     # @property
     # def name(self):
@@ -160,7 +159,7 @@ class Chord(AbstractTheoryObject):
 
 
 if __name__ == '__main__':
-    Chord.base_notes.add(Note(60))
+    Chord.base_notes.add(Note(61))
     Chord.valid_qualities.add('mM7')
 
     d = MusicDisplay((640, 480), 200, (0, 0, 0))

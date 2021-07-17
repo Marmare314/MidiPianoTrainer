@@ -30,10 +30,17 @@ class Note(AbstractTheoryObject):
     def __eq__(self, other):
         if isinstance(other, Note):
             return self._note == other._note
+        elif isinstance(other, BasicNote):
+            return self._note == other
         return False
 
     def __hash__(self):
         return hash(self._note)
+
+    def __add__(self, other):
+        if isinstance(other, int):
+            return Note(self._note.midi_num + other)
+        raise TypeError('Can only add int to Note')
 
     def _set_key_name(self):
         scale = Note.default_scale
@@ -60,7 +67,7 @@ class Note(AbstractTheoryObject):
         size_name = display.draw_text(self.key_name, position, FontSize.BIG)
 
         if show_octave:
-            position_octave = size_name.scale_width(self.key_name, 1.2) + position
+            position_octave = size_name.scale_width(self.key_name, 0.2) + position
             size_octave = display.draw_text(str(self._note.octave), position_octave, FontSize.SMALL)
             return size_name, size_octave
         return size_name
