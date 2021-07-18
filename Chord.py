@@ -143,6 +143,10 @@ class Chord(AbstractTheoryObject):
     def draw_notation(self, display, position):
         raise NotImplementedError()
 
+    def play(self, midi, velocity, length, channel=1, wait_time=0):
+        for note in self._notes:
+            note.play(midi, velocity, length, channel, wait_time)
+
 
 if __name__ == '__main__':
     Chord.base_notes.add(Note(61))

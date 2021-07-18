@@ -76,9 +76,9 @@ class Note(AbstractTheoryObject):
         # TODO: draw note on musical lines
         pass
 
-    def play(self, midi, velocity, length, channel=1):
+    def play(self, midi, velocity, length, channel=1, wait_time=0):
         if 0 <= velocity <= 1 and 1 <= channel <= 16 and length > 0:
-            midi.play_note(self._note.midi_num, int(velocity * 127), length, channel)
+            midi.play_note(self._note.midi_num, int(velocity * 127), length, channel, wait_time)
 
 
 if __name__ == '__main__':

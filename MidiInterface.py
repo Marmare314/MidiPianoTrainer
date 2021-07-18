@@ -51,10 +51,11 @@ class MidiInterface:
                 await self._task_q.pop()
             await asyncio.sleep(0.0001)
 
-    def play_note(self, midi_num, velocity, length, channel=1):
-        self._task_q.append(self._loop.create_task(self.play_note_async(midi_num, velocity, length, channel)))
+    def play_note(self, midi_num, velocity, length, channel=1, wait_time=0):
+        self._task_q.append(self._loop.create_task(self.play_note_async(midi_num, velocity, length, channel, wait_time)))
 
-    async def play_note_async(self, midi_num, velocity, length, channel=1):
+    async def play_note_async(self, midi_num, velocity, length, channel=1, wait_time=0):
+        await asyncio.sleep(wait_time)
         self._outport.send(mido.Message('note_on', channel=channel - 1, note=midi_num, velocity=velocity))
         await asyncio.sleep(length)
         self._outport.send(mido.Message('note_off', channel=channel - 1, note=midi_num, velocity=velocity))
