@@ -28,10 +28,11 @@ class TrainMode(enum.Enum):
 class Trainer:
 
     trainables = []
+    width, height = 1400, 400
 
     def __init__(self, partial_name):
         self._midi = MidiInterface(partial_name)
-        self._display = MusicDisplay((1400, 400), 300, (0, 0, 0))
+        self._display = MusicDisplay((Trainer.width, Trainer.height), 3 * Trainer.height // 4, (0, 0, 0))
         self._midi.register_callback(self.forward_callback)
 
         self._background_color = COLOR_WHITE
@@ -91,10 +92,17 @@ class Trainer:
             self._blink_green_start = None
 
         self._display.fill_screen(self._background_color)
+
+        active_position = Coord(50, Trainer.height // 4)
+
         if self._active_mode == TrainMode.NAME_NOTATION:
-            self._active_task.draw_name(self._display, Coord(0, 0))
+            self._active_task.draw_name(self._display, active_position)
         elif self._active_mode == TrainMode.LISTENING:
-            self._display.draw_text('♬', Coord(0, 0), FontSize.BIG)
+            self._display.draw_text('♬', active_position, FontSize.BIG)
+            if self._last_task is not None:
+                self._display.font_size = Trainer.height // 4
+                self._last_task.draw_name(self._display, Coord(0, 0))
+                self._display.font_size = 3 * Trainer.height // 4
         elif self._active_mode == TrainMode.MUSIC_NOTATION:
             pass
 

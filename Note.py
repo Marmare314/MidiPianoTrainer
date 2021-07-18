@@ -63,12 +63,14 @@ class Note(AbstractTheoryObject):
                 return UpdateStatus.COMPLETED
             return UpdateStatus.WRONG
 
-    def draw_name(self, display, position, show_octave):
+    def draw_name(self, display, position, show_octave, overload_octave=None):
         size_name = display.draw_text(self.key_name, position, FontSize.BIG)
 
         if show_octave:
+            if overload_octave is None:
+                overload_octave = self._note.octave
             position_octave = size_name.scale_width(self.key_name, 0.2) + position
-            size_octave = display.draw_text(str(self._note.octave), position_octave, FontSize.SMALL)
+            size_octave = display.draw_text(str(overload_octave), position_octave, FontSize.SMALL)
             return size_name, size_octave
         return size_name
 

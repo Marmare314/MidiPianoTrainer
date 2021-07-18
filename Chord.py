@@ -129,7 +129,7 @@ class Chord(AbstractTheoryObject):
 
     def draw_name(self, display, position):
         low_text, high_text = split_extensions(group_extensions(self._quality))
-        note_size, octave_size = self._base_note.draw_name(display, position, True)
+        note_size, octave_size = self._base_note.draw_name(display, position, True, self._inversion)
 
         position_low_x = position + (note_size + octave_size).scale_width(self._base_note.key_name, 0.3)
         position_low_y = position + note_size.scale_height('1', 2/3)
