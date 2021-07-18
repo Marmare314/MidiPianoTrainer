@@ -19,12 +19,14 @@ COLOR_RED = (255, 200, 200)
 
 
 class Trainer:
-    def __init__(self, partial_name, trainables):
+
+    trainables = []
+
+    def __init__(self, partial_name):
         self._midi = MidiInterface(partial_name)
         self._display = MusicDisplay((1400, 400), 300, (0, 0, 0))
         self._midi.register_callback(self.forward_callback)
 
-        self._trainables = trainables
         self._background_color = COLOR_WHITE
         self._blink_green = False
         self._blink_green_start = None
@@ -57,7 +59,7 @@ class Trainer:
 
     def _new_active_task(self):
         # self._last_task = self._active_task # do this if hearing mode is active
-        self._active_task = random.sample(self._trainables, 1)[0].random()
+        self._active_task = random.sample(Trainer.trainables, 1)[0].random()
 
     def draw(self):
         if self._blink_green and (self._blink_green_start is None):
@@ -86,5 +88,7 @@ if __name__ == '__main__':
     Chord.base_notes = {Note(i) for i in range(60, 73)}
     Chord.valid_qualities = {'', 'm'}
 
-    t = Trainer('CASIO USB-MIDI', [Chord])
+    Trainer.trainables = [Chord]
+
+    t = Trainer('CASIO USB-MIDI')
     t.mainloop()

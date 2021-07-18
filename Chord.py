@@ -143,20 +143,6 @@ class Chord(AbstractTheoryObject):
     def draw_notation(self, display, position):
         raise NotImplementedError()
 
-    # @property
-    # def name(self):
-    #     """ Returns a random variation of the name of the base note """
-    #     return self._name
-
-    # @property
-    # def quality(self) -> str:
-    #     """ Returns quality of chord """
-    #     return self._chord.quality.quality
-
-    # @property
-    # def inversion(self) -> int:
-    #     return self._inversion
-
 
 if __name__ == '__main__':
     Chord.base_notes.add(Note(61))

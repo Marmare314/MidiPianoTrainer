@@ -25,3 +25,6 @@ class AbstractTheoryObject:
 
     def draw_notation(self, display, position):
         raise NotImplementedError()
+
+    def play(midi, velocity, length, channel=1):
+        raise NotImplementedError()
